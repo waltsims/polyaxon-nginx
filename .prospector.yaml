@@ -33,6 +33,7 @@ pylint:
     - too-many-instance-attributes
     - too-many-locals
     - unused-argument
+    - anomalous-backslash-in-string
   enable:
     - missing-final-newline
   options:
