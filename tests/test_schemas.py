@@ -8,6 +8,7 @@ from polyaxon_nginx.schemas.listen import get_listen_config
 from polyaxon_nginx.schemas.locations import get_locations_config
 from polyaxon_nginx.schemas.logging import get_logging_config
 from polyaxon_nginx.schemas.plugins import get_plugins_location_config
+from polyaxon_nginx.schemas.redirect import get_redirect_config
 from polyaxon_nginx.schemas.ssl import get_ssl_config
 from polyaxon_nginx.schemas.timeout import get_timeout_config
 
@@ -35,6 +36,7 @@ listen 80;
 
         expected = """
 listen 443 ssl;
+ssl on;
 """
         settings.ENABLE_SSL = True
         assert get_listen_config() == expected
@@ -84,6 +86,18 @@ ssl_certificate_key  /foo/polyaxon.com.key;
 """  # noqa
         settings.CERTS_PATH = '/foo'
         assert get_ssl_config() == expected
+
+    def test_redirect_config(self):
+        expected = """
+server {
+    listen 80;
+    return 301 https://$host$request_uri;
+}
+"""
+        settings.ENABLE_SSL = False
+        assert get_redirect_config() == ''
+        settings.ENABLE_SSL = True
+        assert get_redirect_config() == expected
 
     def test_logging(self):
         expected = """

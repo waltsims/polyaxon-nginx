@@ -15,4 +15,4 @@ class TestGenerate(TestCase):
         tmp_dir = tempfile.mkdtemp()
         assert os.listdir(tmp_dir) == []
         generate_nginx_conf(path=tmp_dir)
-        assert os.listdir(tmp_dir) == ['polyaxon.base.conf']
+        assert os.listdir(tmp_dir) == ['polyaxon.base.conf', 'polyaxon.redirect.conf']

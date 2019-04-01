@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function
 from polyaxon_nginx import settings
 from polyaxon_nginx.schemas.base import get_config
 
-OPTIONS = """
+SSL_OPTIONS = """
 # SSL
 ssl_session_timeout 1d;
 ssl_session_cache shared:SSL:50m;
@@ -27,6 +27,6 @@ ssl_certificate_key  {certs_path}/polyaxon.com.key;
 
 
 def get_ssl_config():
-    return get_config(options=OPTIONS,
+    return get_config(options=SSL_OPTIONS,
                       indent=0,
                       certs_path=settings.CERTS_PATH)
