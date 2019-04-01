@@ -11,4 +11,3 @@ def write_to_conf_file(name, content, path=None):
 
 def generate_nginx_conf(path=None):
     write_to_conf_file('polyaxon', get_polyaxon_config(), path)
-    write_to_conf_file('nginx', get_polyaxon_config(), path)
