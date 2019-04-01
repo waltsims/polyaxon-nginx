@@ -6,7 +6,7 @@ from polyaxon_nginx.schemas.base import get_config
 
 OPTIONS = """
 location ~ /tensorboard/proxy/([-_.:\w]+)/(.*) {{
-    resolver {dns_prefix}.svc.{cluster_dns} valid=5s;
+    resolver {dns_prefix}.svc.{dns_cluster} valid=5s;
     rewrite_log on;
     rewrite ^/tensorboard/proxy/([-_.:\w]+)/(.*) /$2 break;
     proxy_pass http://$1;
@@ -17,7 +17,7 @@ location ~ /tensorboard/proxy/([-_.:\w]+)/(.*) {{
 }}
 
 location ~ /notebook/proxy/([-_.:\w]+)/(.*) {{
-    resolver {dns_prefix}.svc.{cluster_dns} valid=5s;
+    resolver {dns_prefix}.svc.{dns_cluster} valid=5s;
     rewrite_log on;
     rewrite ^/notebook/proxy/([-_.:\w]+)/(.*) /notebook/proxy/$1/$2 break;
     proxy_pass http://$1;
@@ -37,4 +37,4 @@ def get_plugins_location_config():
     return get_config(options=OPTIONS,
                       indent=0,
                       dns_prefix=dns_prefix,
-                      cluster_dns=settings.CUSTOM_CLUSTER_DNS)
+                      dns_cluster=settings.DNS_CUSTOM_CLUSTER)

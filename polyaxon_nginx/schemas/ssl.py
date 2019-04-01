@@ -21,12 +21,12 @@ ssl_stapling_verify on;
 resolver 1.1.1.1 1.0.0.1 8.8.8.8 8.8.4.4 208.67.222.222 208.67.220.220 valid=60s;
 resolver_timeout 2s;
 
-ssl_certificate      {certs_path}/polyaxon.com.crt;
-ssl_certificate_key  {certs_path}/polyaxon.com.key;
+ssl_certificate      {ssl_path}/polyaxon.com.crt;
+ssl_certificate_key  {ssl_path}/polyaxon.com.key;
 """  # noqa
 
 
 def get_ssl_config():
     return get_config(options=SSL_OPTIONS,
                       indent=0,
-                      certs_path=settings.CERTS_PATH)
+                      ssl_path=settings.SSL_PATH)

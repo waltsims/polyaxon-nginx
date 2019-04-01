@@ -15,5 +15,5 @@ ssl on;
 
 
 def get_listen_config():
-    return get_config(options=SSL_OPTIONS if settings.ENABLE_SSL else HTTP_OPTIONS,
+    return get_config(options=SSL_OPTIONS if settings.SSL_ENABLED else HTTP_OPTIONS,
                       indent=0)

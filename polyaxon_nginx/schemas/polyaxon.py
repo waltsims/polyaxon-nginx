@@ -19,7 +19,7 @@ def get_polyaxon_config():
     config = [
         get_listen_config(),
     ]
-    if settings.ENABLE_SSL:
+    if settings.SSL_ENABLED:
         config.append(get_ssl_config())
     config += [
         get_logging_config(),
@@ -31,7 +31,7 @@ def get_polyaxon_config():
         get_error_page_config(),
         get_locations_config(),
     ]
-    if settings.ENABLE_PLUGINS:
+    if settings.NGINX_PLUGINS_ENABLED:
         config.append(get_plugins_location_config())
 
     return '\n'.join(config)

@@ -14,6 +14,6 @@ server {{
 
 
 def get_redirect_config():
-    return get_config(options=SSL_REDIRECT_OPTIONS if settings.ENABLE_SSL else '',
+    return get_config(options=SSL_REDIRECT_OPTIONS if settings.SSL_ENABLED else '',
                       indent=0,
-                      certs_path=settings.CERTS_PATH)
+                      ssl_path=settings.SSL_PATH)

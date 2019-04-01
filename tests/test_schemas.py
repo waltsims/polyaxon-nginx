@@ -31,14 +31,14 @@ proxy_read_timeout 200;
         expected = """
 listen 80;
 """
-        settings.ENABLE_SSL = False
+        settings.SSL_ENABLED = False
         assert get_listen_config() == expected
 
         expected = """
 listen 443 ssl;
 ssl on;
 """
-        settings.ENABLE_SSL = True
+        settings.SSL_ENABLED = True
         assert get_listen_config() == expected
 
     def test_ssl(self):
@@ -84,7 +84,7 @@ resolver_timeout 2s;
 ssl_certificate      /foo/polyaxon.com.crt;
 ssl_certificate_key  /foo/polyaxon.com.key;
 """  # noqa
-        settings.CERTS_PATH = '/foo'
+        settings.SSL_PATH = '/foo'
         assert get_ssl_config() == expected
 
     def test_redirect_config(self):
@@ -94,9 +94,9 @@ server {
     return 301 https://$host$request_uri;
 }
 """
-        settings.ENABLE_SSL = False
+        settings.SSL_ENABLED = False
         assert get_redirect_config() == ''
-        settings.ENABLE_SSL = True
+        settings.SSL_ENABLED = True
         assert get_redirect_config() == expected
 
     def test_logging(self):
@@ -173,7 +173,7 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
     proxy_set_header Origin "";
 }
 """  # noqa
-        settings.CUSTOM_CLUSTER_DNS = 'cluster.local'
+        settings.DNS_CUSTOM_CLUSTER = 'cluster.local'
         assert get_plugins_location_config() == expected
 
     expected = """
@@ -199,7 +199,7 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
     proxy_set_header Origin "";
 }
 """  # noqa
-    settings.CUSTOM_CLUSTER_DNS = 'new-dns'
+    settings.DNS_CUSTOM_CLUSTER = 'new-dns'
     assert get_plugins_location_config() == expected
 
     def test_plugins_dns_prefix(self):
@@ -253,5 +253,5 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
 }
 """  # noqa
         settings.DNS_PREFIX = 'kube-dns.new-system'
-        settings.CUSTOM_CLUSTER_DNS = 'new-dns'
+        settings.DNS_CUSTOM_CLUSTER = 'new-dns'
         assert get_plugins_location_config() == expected
