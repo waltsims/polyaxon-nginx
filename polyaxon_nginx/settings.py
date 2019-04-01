@@ -48,6 +48,10 @@ ENABLE_SSL = config.get_boolean('POLYAXON_NGINX_ENABLE_SSL',
                                 is_optional=True,
                                 default=False)
 
+ENABLE_PLUGINS = config.get_boolean('POLYAXON_NGINX_ENABLE_PLUGINS',
+                                    is_optional=True,
+                                    default=False)
+
 REPOS_PATH = config.get_string('POLYAXON_NGINX_REPOS_PATH',
                                is_optional=True,
                                default='/repos')

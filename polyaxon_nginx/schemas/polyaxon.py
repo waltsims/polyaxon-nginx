@@ -9,6 +9,7 @@ from polyaxon_nginx.schemas.gzip import get_gzip_config
 from polyaxon_nginx.schemas.listen import get_listen_config
 from polyaxon_nginx.schemas.locations import get_locations_config
 from polyaxon_nginx.schemas.logging import get_logging_config
+from polyaxon_nginx.schemas.plugins import get_plugins_location_config
 from polyaxon_nginx.schemas.ssl import get_ssl_config
 from polyaxon_nginx.schemas.timeout import get_timeout_config
 from polyaxon_nginx.schemas.uwsgi import get_uwsgi_config
@@ -30,5 +31,7 @@ def get_polyaxon_config():
         get_error_page_config(),
         get_locations_config(),
     ]
+    if settings.ENABLE_PLUGINS:
+        config.append(get_plugins_location_config())
 
     return '\n'.join(config)

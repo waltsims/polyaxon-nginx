@@ -15,7 +15,7 @@ upstream polyaxon {
 }
 
 server {
-    include polyaxon/polyaxon.conf;
+    include polyaxon/polyaxon.base.conf;
 }
 """
         assert get_main_config() == expected
