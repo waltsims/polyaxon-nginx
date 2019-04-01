@@ -59,7 +59,7 @@ resolver_timeout 2s;
 
 ssl_certificate      /etc/ssl/polyaxon.com.crt;
 ssl_certificate_key  /etc/ssl/polyaxon.com.key;
-"""
+"""  # noqa
         assert get_ssl_config() == expected
 
         expected = """
@@ -81,7 +81,7 @@ resolver_timeout 2s;
 
 ssl_certificate      /foo/polyaxon.com.crt;
 ssl_certificate_key  /foo/polyaxon.com.key;
-"""
+"""  # noqa
         settings.CERTS_PATH = '/foo'
         assert get_ssl_config() == expected
 
@@ -158,7 +158,7 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
     proxy_set_header Connection "upgrade";
     proxy_set_header Origin "";
 }
-"""
+"""  # noqa
         settings.CUSTOM_CLUSTER_DNS = 'cluster.local'
         assert get_plugins_location_config() == expected
 
@@ -184,7 +184,7 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
     proxy_set_header Connection "upgrade";
     proxy_set_header Origin "";
 }
-"""
+"""  # noqa
     settings.CUSTOM_CLUSTER_DNS = 'new-dns'
     assert get_plugins_location_config() == expected
 
@@ -211,7 +211,7 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
     proxy_set_header Connection "upgrade";
     proxy_set_header Origin "";
 }
-"""
+"""  # noqa
         settings.DNS_PREFIX = 'coredns.kube-system'
         assert get_plugins_location_config() == expected
 
@@ -237,7 +237,7 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
     proxy_set_header Connection "upgrade";
     proxy_set_header Origin "";
 }
-"""
+"""  # noqa
         settings.DNS_PREFIX = 'kube-dns.new-system'
         settings.CUSTOM_CLUSTER_DNS = 'new-dns'
         assert get_plugins_location_config() == expected

@@ -26,7 +26,7 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {{
     proxy_set_header Connection "upgrade";
     proxy_set_header Origin "";
 }}
-"""
+"""  # noqa
 
 
 def get_plugins_location_config():

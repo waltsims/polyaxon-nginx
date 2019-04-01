@@ -23,7 +23,7 @@ resolver_timeout 2s;
 
 ssl_certificate      {certs_path}/polyaxon.com.crt;
 ssl_certificate_key  {certs_path}/polyaxon.com.key;
-"""
+"""  # noqa
 
 
 def get_ssl_config():
