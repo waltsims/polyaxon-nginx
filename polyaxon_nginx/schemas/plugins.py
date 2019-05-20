@@ -6,7 +6,7 @@ from polyaxon_nginx.schemas.base import get_config
 
 OPTIONS = """
 location ~ /tensorboard/proxy/([-_.:\w]+)/(.*) {{
-    resolver {dns_prefix}.svc.{dns_cluster} valid=5s;
+    resolver {dns_config} valid=5s;
     rewrite_log on;
     rewrite ^/tensorboard/proxy/([-_.:\w]+)/(.*) /$2 break;
     proxy_pass http://$1;
@@ -17,7 +17,7 @@ location ~ /tensorboard/proxy/([-_.:\w]+)/(.*) {{
 }}
 
 location ~ /notebook/proxy/([-_.:\w]+)/(.*) {{
-    resolver {dns_prefix}.svc.{dns_cluster} valid=5s;
+    resolver {dns_config} valid=5s;
     rewrite_log on;
     rewrite ^/notebook/proxy/([-_.:\w]+)/(.*) /notebook/proxy/$1/$2 break;
     proxy_pass http://$1;
@@ -29,12 +29,17 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {{
 """  # noqa
 
 
+def get_dns_config(dns_prefix=None, dns_backend=None, dns_cluster=None):
+    dns_prefix = dns_prefix or settings.DNS_PREFIX
+    dns_backend = dns_backend or settings.DNS_BACKEND
+    dns_cluster = dns_cluster or settings.DNS_CUSTOM_CLUSTER
+    if not dns_prefix:
+        dns_prefix = '{}.kube-system'.format(dns_backend)
+    return '{dns_prefix}.svc.{dns_cluster}'.format(dns_prefix=dns_prefix, dns_cluster=dns_cluster)
+
+
 def get_plugins_location_config():
-    if settings.DNS_PREFIX:
-        dns_prefix = settings.DNS_PREFIX
-    else:
-        dns_prefix = '{}.kube-system'.format(settings.DNS_BACKEND)
+    dns_config = get_dns_config()
     return get_config(options=OPTIONS,
                       indent=0,
-                      dns_prefix=dns_prefix,
-                      dns_cluster=settings.DNS_CUSTOM_CLUSTER)
+                      dns_config=dns_config)

@@ -7,7 +7,7 @@ from polyaxon_nginx import settings
 from polyaxon_nginx.schemas.listen import get_listen_config
 from polyaxon_nginx.schemas.locations import get_locations_config
 from polyaxon_nginx.schemas.logging import get_logging_config
-from polyaxon_nginx.schemas.plugins import get_plugins_location_config
+from polyaxon_nginx.schemas.plugins import get_plugins_location_config, get_dns_config
 from polyaxon_nginx.schemas.redirect import get_redirect_config
 from polyaxon_nginx.schemas.ssl import get_ssl_config
 from polyaxon_nginx.schemas.timeout import get_timeout_config
@@ -174,6 +174,7 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
 }
 """  # noqa
         settings.DNS_CUSTOM_CLUSTER = 'cluster.local'
+        assert get_dns_config() == 'kube-dns.kube-system.svc.cluster.local'
         assert get_plugins_location_config() == expected
 
     expected = """
@@ -200,6 +201,7 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
 }
 """  # noqa
     settings.DNS_CUSTOM_CLUSTER = 'new-dns'
+    assert get_dns_config() == 'kube-dns.kube-system.svc.new-dns'
     assert get_plugins_location_config() == expected
 
     def test_plugins_dns_prefix(self):
@@ -227,6 +229,7 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
 }
 """  # noqa
         settings.DNS_PREFIX = 'coredns.kube-system'
+        assert get_dns_config() == 'coredns.kube-system.svc.cluster.local'
         assert get_plugins_location_config() == expected
 
         expected = """
@@ -254,4 +257,5 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
 """  # noqa
         settings.DNS_PREFIX = 'kube-dns.new-system'
         settings.DNS_CUSTOM_CLUSTER = 'new-dns'
+        assert get_dns_config() == 'kube-dns.new-system.svc.new-dns'
         assert get_plugins_location_config() == expected
