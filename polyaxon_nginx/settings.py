@@ -12,6 +12,14 @@ config = rhea.Rhea.read_configs([
     os.environ,
 ])
 
+NGINX_PLUGINS = config.get_dict_of_dicts('POLYAXON_NGINX_PLUGINS',
+                                         is_optional=True,
+                                         default={})
+
+DNS_USE_RESOLVER = config.get_boolean('POLYAXON_DNS_USE_RESOLVER',
+                                      is_optional=True,
+                                      default=False)
+
 DNS_CUSTOM_CLUSTER = config.get_string('POLYAXON_DNS_CUSTOM_CLUSTER',
                                        is_optional=True,
                                        default='cluster.local')
@@ -47,10 +55,6 @@ INDENT_WIDTH = config.get_int('POLYAXON_NGINX_INDENT_WIDTH',
 SSL_ENABLED = config.get_boolean('POLYAXON_SSL_ENABLED',
                                  is_optional=True,
                                  default=False)
-
-NGINX_PLUGINS_ENABLED = config.get_boolean('POLYAXON_NGINX_PLUGINS_ENABLED',
-                                           is_optional=True,
-                                           default=False)
 
 REPOS_PATH = config.get_string('POLYAXON_NGINX_REPOS_PATH',
                                is_optional=True,

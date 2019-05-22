@@ -29,6 +29,20 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {{
 """  # noqa
 
 
+OPTIONS = """
+location ~ /{plugin_name}/proxy/([-_.:\w]+)/(.*) {{
+    {resolver}
+    rewrite_log on;
+    rewrite ^/{plugin_name}/proxy/([-_.:\w]+)/(.*) /{plugin_name}/proxy/$1/$2 break;
+    proxy_pass http://$1:{port};
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Origin "";
+}}
+"""  # noqa
+
+
 def get_dns_config(dns_prefix=None, dns_backend=None, dns_cluster=None):
     dns_prefix = dns_prefix or settings.DNS_PREFIX
     dns_backend = dns_backend or settings.DNS_BACKEND
@@ -38,8 +52,27 @@ def get_dns_config(dns_prefix=None, dns_backend=None, dns_cluster=None):
     return '{dns_prefix}.svc.{dns_cluster}'.format(dns_prefix=dns_prefix, dns_cluster=dns_cluster)
 
 
-def get_plugins_location_config():
-    dns_config = get_dns_config()
+def get_resolver():
+    if settings.DNS_USE_RESOLVER:
+        dns_config = get_dns_config()
+        return 'resolver {} valid=5s;'.format(dns_config)
+    return ''
+
+
+def get_plugin_location_config(name, port):
+    resolver = get_resolver()
     return get_config(options=OPTIONS,
                       indent=0,
-                      dns_config=dns_config)
+                      plugin_name=name,
+                      port=port,
+                      resolver=resolver)
+
+
+def get_plugins_location_config():
+    plugins = []
+
+    if settings.NGINX_PLUGINS:
+        for plugin, config in settings.NGINX_PLUGINS.items():
+            plugins.append(get_plugin_location_config(name=plugin, port=config['port']))
+
+    return plugins

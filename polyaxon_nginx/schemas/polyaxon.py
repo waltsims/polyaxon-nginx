@@ -31,7 +31,6 @@ def get_polyaxon_config():
         get_error_page_config(),
         get_locations_config(),
     ]
-    if settings.NGINX_PLUGINS_ENABLED:
-        config.append(get_plugins_location_config())
+    config += get_plugins_location_config()
 
     return '\n'.join(config)

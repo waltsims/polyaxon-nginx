@@ -7,7 +7,7 @@ from polyaxon_nginx import settings
 from polyaxon_nginx.schemas.listen import get_listen_config
 from polyaxon_nginx.schemas.locations import get_locations_config
 from polyaxon_nginx.schemas.logging import get_logging_config
-from polyaxon_nginx.schemas.plugins import get_plugins_location_config, get_dns_config
+from polyaxon_nginx.schemas.plugins import get_dns_config, get_plugins_location_config
 from polyaxon_nginx.schemas.redirect import get_redirect_config
 from polyaxon_nginx.schemas.ssl import get_ssl_config
 from polyaxon_nginx.schemas.timeout import get_timeout_config
@@ -149,24 +149,90 @@ location /outputs/ {
 """
         assert get_locations_config() == expected
 
-    def test_plugins_dns_backend(self):
+    def test_no_plugins(self):
+        assert get_plugins_location_config() == []
+
+    def test_plugins(self):
+        settings.NGINX_PLUGINS = {'tensorboard': {'port': 6006}, 'notebook': {'port': 8888}}
+        assert len(get_plugins_location_config()) == 2
+
+    def test_plugins_dns_resolver(self):
         expected = """
 location ~ /tensorboard/proxy/([-_.:\w]+)/(.*) {
-    resolver kube-dns.kube-system.svc.cluster.local valid=5s;
+    
     rewrite_log on;
-    rewrite ^/tensorboard/proxy/([-_.:\w]+)/(.*) /$2 break;
-    proxy_pass http://$1;
+    rewrite ^/tensorboard/proxy/([-_.:\w]+)/(.*) /tensorboard/proxy/$1/$2 break;
+    proxy_pass http://$1:6006;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
     proxy_set_header Origin "";
 }
 
+
+location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
+    
+    rewrite_log on;
+    rewrite ^/notebook/proxy/([-_.:\w]+)/(.*) /notebook/proxy/$1/$2 break;
+    proxy_pass http://$1:8888;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Origin "";
+}
+"""  # noqa
+        settings.DNS_USE_RESOLVER = False
+        assert '\n'.join(get_plugins_location_config()) == expected
+
+        expected = """
+location ~ /tensorboard/proxy/([-_.:\w]+)/(.*) {
+    resolver kube-dns.kube-system.svc.new-dns valid=5s;
+    rewrite_log on;
+    rewrite ^/tensorboard/proxy/([-_.:\w]+)/(.*) /tensorboard/proxy/$1/$2 break;
+    proxy_pass http://$1:6006;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Origin "";
+}
+
+
+location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
+    resolver kube-dns.kube-system.svc.new-dns valid=5s;
+    rewrite_log on;
+    rewrite ^/notebook/proxy/([-_.:\w]+)/(.*) /notebook/proxy/$1/$2 break;
+    proxy_pass http://$1:8888;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Origin "";
+}
+"""  # noqa
+        settings.DNS_PREFIX = 'kube-dns.kube-system'
+        settings.DNS_USE_RESOLVER = True
+        settings.DNS_CUSTOM_CLUSTER = 'new-dns'
+        assert '\n'.join(get_plugins_location_config()) == expected
+
+    def test_plugins_dns_backend(self):
+        settings.DNS_USE_RESOLVER = True
+        expected = """
+location ~ /tensorboard/proxy/([-_.:\w]+)/(.*) {
+    resolver kube-dns.kube-system.svc.cluster.local valid=5s;
+    rewrite_log on;
+    rewrite ^/tensorboard/proxy/([-_.:\w]+)/(.*) /tensorboard/proxy/$1/$2 break;
+    proxy_pass http://$1:6006;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Origin "";
+}
+
+
 location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
     resolver kube-dns.kube-system.svc.cluster.local valid=5s;
     rewrite_log on;
     rewrite ^/notebook/proxy/([-_.:\w]+)/(.*) /notebook/proxy/$1/$2 break;
-    proxy_pass http://$1;
+    proxy_pass http://$1:8888;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
@@ -175,53 +241,56 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
 """  # noqa
         settings.DNS_CUSTOM_CLUSTER = 'cluster.local'
         assert get_dns_config() == 'kube-dns.kube-system.svc.cluster.local'
-        assert get_plugins_location_config() == expected
+        assert '\n'.join(get_plugins_location_config()) == expected
 
-    expected = """
+        expected = """
 location ~ /tensorboard/proxy/([-_.:\w]+)/(.*) {
     resolver kube-dns.kube-system.svc.new-dns valid=5s;
     rewrite_log on;
-    rewrite ^/tensorboard/proxy/([-_.:\w]+)/(.*) /$2 break;
-    proxy_pass http://$1;
+    rewrite ^/tensorboard/proxy/([-_.:\w]+)/(.*) /tensorboard/proxy/$1/$2 break;
+    proxy_pass http://$1:6006;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
     proxy_set_header Origin "";
 }
 
+
 location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
     resolver kube-dns.kube-system.svc.new-dns valid=5s;
     rewrite_log on;
     rewrite ^/notebook/proxy/([-_.:\w]+)/(.*) /notebook/proxy/$1/$2 break;
-    proxy_pass http://$1;
+    proxy_pass http://$1:8888;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
     proxy_set_header Origin "";
 }
 """  # noqa
-    settings.DNS_CUSTOM_CLUSTER = 'new-dns'
-    assert get_dns_config() == 'kube-dns.kube-system.svc.new-dns'
-    assert get_plugins_location_config() == expected
+        settings.DNS_CUSTOM_CLUSTER = 'new-dns'
+        assert get_dns_config() == 'kube-dns.kube-system.svc.new-dns'
+        assert '\n'.join(get_plugins_location_config()) == expected
 
     def test_plugins_dns_prefix(self):
+        settings.DNS_USE_RESOLVER = True
         expected = """
 location ~ /tensorboard/proxy/([-_.:\w]+)/(.*) {
     resolver coredns.kube-system.svc.cluster.local valid=5s;
     rewrite_log on;
-    rewrite ^/tensorboard/proxy/([-_.:\w]+)/(.*) /$2 break;
-    proxy_pass http://$1;
+    rewrite ^/tensorboard/proxy/([-_.:\w]+)/(.*) /tensorboard/proxy/$1/$2 break;
+    proxy_pass http://$1:6006;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
     proxy_set_header Origin "";
 }
 
+
 location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
     resolver coredns.kube-system.svc.cluster.local valid=5s;
     rewrite_log on;
     rewrite ^/notebook/proxy/([-_.:\w]+)/(.*) /notebook/proxy/$1/$2 break;
-    proxy_pass http://$1;
+    proxy_pass http://$1:8888;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
@@ -229,26 +298,28 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
 }
 """  # noqa
         settings.DNS_PREFIX = 'coredns.kube-system'
+        settings.DNS_CUSTOM_CLUSTER = 'cluster.local'
         assert get_dns_config() == 'coredns.kube-system.svc.cluster.local'
-        assert get_plugins_location_config() == expected
+        assert '\n'.join(get_plugins_location_config()) == expected
 
         expected = """
 location ~ /tensorboard/proxy/([-_.:\w]+)/(.*) {
     resolver kube-dns.new-system.svc.new-dns valid=5s;
     rewrite_log on;
-    rewrite ^/tensorboard/proxy/([-_.:\w]+)/(.*) /$2 break;
-    proxy_pass http://$1;
+    rewrite ^/tensorboard/proxy/([-_.:\w]+)/(.*) /tensorboard/proxy/$1/$2 break;
+    proxy_pass http://$1:6006;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
     proxy_set_header Origin "";
 }
 
+
 location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
     resolver kube-dns.new-system.svc.new-dns valid=5s;
     rewrite_log on;
     rewrite ^/notebook/proxy/([-_.:\w]+)/(.*) /notebook/proxy/$1/$2 break;
-    proxy_pass http://$1;
+    proxy_pass http://$1:8888;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
@@ -258,4 +329,4 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
         settings.DNS_PREFIX = 'kube-dns.new-system'
         settings.DNS_CUSTOM_CLUSTER = 'new-dns'
         assert get_dns_config() == 'kube-dns.new-system.svc.new-dns'
-        assert get_plugins_location_config() == expected
+        assert '\n'.join(get_plugins_location_config()) == expected
