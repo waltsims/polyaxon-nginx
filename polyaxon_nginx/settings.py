@@ -12,7 +12,7 @@ config = rhea.Rhea.read_configs([
     os.environ,
 ])
 
-NGINX_PLUGINS = config.get_dict_of_dicts('POLYAXON_NGINX_PLUGINS',
+NGINX_PLUGINS = config.get_dict_of_dicts('POLYAXON_PLUGINS',
                                          is_optional=True,
                                          default={})
 
