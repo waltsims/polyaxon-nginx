@@ -15,7 +15,9 @@ config = rhea.Rhea.read_configs([
 NGINX_PLUGINS = config.get_dict_of_dicts('POLYAXON_PLUGINS',
                                          is_optional=True,
                                          default={})
-
+WS_PORT = config.get_int('POLYAXON_WS_PORT',
+                         is_optional=True,
+                         default=1337)
 DNS_USE_RESOLVER = config.get_boolean('POLYAXON_DNS_USE_RESOLVER',
                                       is_optional=True,
                                       default=False)

@@ -89,5 +89,16 @@ location /outputs/ {
     add_header                Cache-Control private;
     internal;
 }
+
+
+location ~ /ws {
+    proxy_pass http://localhost:1337;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Origin "";
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+}
 """
         assert get_polyaxon_config() == expected

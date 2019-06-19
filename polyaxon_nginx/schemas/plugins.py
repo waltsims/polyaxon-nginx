@@ -4,7 +4,6 @@ from __future__ import absolute_import, division, print_function
 from polyaxon_nginx import settings
 from polyaxon_nginx.schemas.base import get_config
 
-
 OPTIONS = """
 location ~ /{plugin_name}/proxy/([-_.:\w]+)/(.*) {{
     {resolver}

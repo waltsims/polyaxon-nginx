@@ -13,6 +13,7 @@ from polyaxon_nginx.schemas.plugins import get_plugins_location_config
 from polyaxon_nginx.schemas.ssl import get_ssl_config
 from polyaxon_nginx.schemas.timeout import get_timeout_config
 from polyaxon_nginx.schemas.uwsgi import get_uwsgi_config
+from polyaxon_nginx.schemas.ws import get_ws_location_config
 
 
 def get_polyaxon_config():
@@ -30,6 +31,7 @@ def get_polyaxon_config():
         get_uwsgi_config(),
         get_error_page_config(),
         get_locations_config(),
+        get_ws_location_config(),
     ]
     config += get_plugins_location_config()
 

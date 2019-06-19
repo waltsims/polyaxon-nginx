@@ -11,6 +11,7 @@ from polyaxon_nginx.schemas.plugins import get_dns_config, get_plugins_location_
 from polyaxon_nginx.schemas.redirect import get_redirect_config
 from polyaxon_nginx.schemas.ssl import get_ssl_config
 from polyaxon_nginx.schemas.timeout import get_timeout_config
+from polyaxon_nginx.schemas.ws import get_ws_location_config
 
 
 class TestSchemas(TestCase):
@@ -330,3 +331,32 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
         settings.DNS_CUSTOM_CLUSTER = 'new-dns'
         assert get_dns_config() == 'kube-dns.new-system.svc.new-dns'
         assert '\n'.join(get_plugins_location_config()) == expected
+
+    def test_ws_location_config(self):
+        # settings.NGINX_PLUGINS = {'tensorboard': {'port': 6006}, 'notebook': {'port': 8888}}
+        expected = """
+location ~ /ws {
+    proxy_pass http://localhost:1337;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Origin "";
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+"""
+        assert get_ws_location_config() == expected
+
+        settings.WS_PORT = 8888
+        expected = """
+location ~ /ws {
+    proxy_pass http://localhost:8888;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Origin "";
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+"""
+        assert get_ws_location_config() == expected
