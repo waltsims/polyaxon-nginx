@@ -16,7 +16,7 @@ class TestSettings(TestCase):
         assert settings.NAMESPACE is None
         assert settings.LOGGING_LEVEL == 'warn'
         assert settings.TIMEOUT == 600
-        assert settings.SSL_PATH == '/etc/ssl'
+        assert settings.SSL_PATH == '/etc/ssl/polyaxon'
         assert settings.INDENT_CHAR == ' '
         assert settings.INDENT_WIDTH == 4
         assert settings.SSL_ENABLED is False

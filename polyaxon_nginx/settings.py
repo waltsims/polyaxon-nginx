@@ -44,7 +44,7 @@ TIMEOUT = config.get_int('POLYAXON_NGINX_TIMEOUT',
 
 SSL_PATH = config.get_string('POLYAXON_SSL_PATH',
                              is_optional=True,
-                             default='/etc/ssl')
+                             default='/etc/ssl/polyaxon')
 
 INDENT_CHAR = config.get_string('POLYAXON_NGINX_INDENT_CHAR',
                                 is_optional=True,

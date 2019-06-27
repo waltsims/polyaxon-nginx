@@ -24,7 +24,7 @@ class PyTest(TestCommand):
 
 
 setup(name='polyaxon-nginx',
-      version='0.5.0',
+      version='0.5.1',
       description='Polyaxon nginx conf generator.',
       long_description=read_readme(),
       long_description_content_type="text/markdown",
