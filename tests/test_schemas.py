@@ -343,6 +343,7 @@ location ~ /ws {
     proxy_set_header Origin "";
     proxy_set_header Host $http_host;
     proxy_set_header X-Real-IP $remote_addr;
+    internal;
 }
 """
         assert get_ws_location_config() == expected
@@ -357,6 +358,7 @@ location ~ /ws {
     proxy_set_header Origin "";
     proxy_set_header Host $http_host;
     proxy_set_header X-Real-IP $remote_addr;
+    internal;
 }
 """
         assert get_ws_location_config() == expected
