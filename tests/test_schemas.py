@@ -335,7 +335,7 @@ location ~ /notebook/proxy/([-_.:\w]+)/(.*) {
     def test_ws_location_config(self):
         # settings.NGINX_PLUGINS = {'tensorboard': {'port': 6006}, 'notebook': {'port': 8888}}
         expected = """
-location ~ /ws {
+location /ws/ {
     proxy_pass http://localhost:1337;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
@@ -350,7 +350,7 @@ location ~ /ws {
 
         settings.WS_PORT = 8888
         expected = """
-location ~ /ws {
+location /ws/ {
     proxy_pass http://localhost:8888;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;

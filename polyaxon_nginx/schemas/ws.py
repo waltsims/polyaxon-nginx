@@ -5,7 +5,7 @@ from polyaxon_nginx import settings
 from polyaxon_nginx.schemas.base import get_config
 
 OPTIONS = """
-location ~ /ws {{
+location /ws/ {{
     proxy_pass http://localhost:{port};
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;

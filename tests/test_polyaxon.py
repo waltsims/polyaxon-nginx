@@ -91,7 +91,7 @@ location /outputs/ {
 }
 
 
-location ~ /ws {
+location /ws/ {
     proxy_pass http://localhost:1337;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
